@@ -1,0 +1,7 @@
+customtkinter
+pystray
+pyautogui
+pywin32
+watchdog
+psutil
+ollama
