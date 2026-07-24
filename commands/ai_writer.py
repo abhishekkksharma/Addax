@@ -1,41 +1,40 @@
+import re
+from pathlib import Path
+
+from .llm import LLMError, chat
+
+
+def _target_file_from_request(command_text: str) -> str:
+    match = re.search(r"(?:to|in|as|called|named)\s+([\w.\- ]+\.[a-zA-Z0-9]{1,8})\b", command_text)
+    if match:
+        return Path(match.group(1).strip()).name
+    return "ai_output.txt"
+
+
 def write_file_ai(command_text: str) -> str:
     """
-    Use local LLM (Ollama) to write content to a file.
-    Example: 'write a README for my movie recommendation project'
-    
-    Note: Requires Ollama to be running locally with a model (e.g., llama2 or mistral).
+    Use OpenRouter to write content to a file.
+    Example: 'write a README for my movie recommendation project to README.md'
     """
-    try:
-        import ollama
-    except ImportError:
-        return "Ollama library is not installed. Run 'pip install ollama'."
-
-    # Expected command: write a <filename> for <prompt> or similar
-    # For simplicity, we just pass the whole command to the AI and ask it to output file content
-    prompt = command_text.replace("write ", "").strip()
+    prompt = command_text.replace("write ", "", 1).strip()
     if not prompt:
         return "Please specify what to write."
 
     try:
-        response = ollama.chat(model='llama3', messages=[
+        content = chat([
             {
-                'role': 'system',
-                'content': 'You are a helpful assistant. Provide only the file content based on the user request, without markdown formatting or extra talk.'
+                "role": "system",
+                "content": "Write the requested file content only. Do not include markdown fences or extra commentary.",
             },
-            {
-                'role': 'user',
-                'content': prompt
-            }
-        ])
-        
-        content = response['message']['content']
-        
-        # Save to a generic output file for now
-        output_file = "ai_output.txt"
+            {"role": "user", "content": prompt},
+        ], temperature=0.4, max_tokens=1600)
+
+        output_file = _target_file_from_request(command_text)
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(content)
-            
-        return f"Successfully generated and saved to {output_file}"
-        
-    except Exception as e:
-        return f"Failed to generate text using Ollama: {str(e)}"
+
+        return f"Generated and saved: {output_file}"
+    except LLMError as exc:
+        return str(exc)
+    except Exception as exc:
+        return f"Failed to generate text: {exc}"

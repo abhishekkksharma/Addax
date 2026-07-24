@@ -4,4 +4,10 @@ pyautogui
 pywin32
 watchdog
 psutil
-ollama
+SpeechRecognition
+PyAudio
+chromadb
+PyPDF2
+pandas
+pillow
+pyinstaller

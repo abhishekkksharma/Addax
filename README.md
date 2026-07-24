@@ -1,86 +1,81 @@
 # Desktop AI Assistant
 
-A lightweight, customizable AI assistant for Windows built with Python. It features a persistent, draggable UI at the bottom right of your screen and automates your daily workflow via simple text commands.
+A lightweight Windows desktop assistant with a transparent interactive pet UI, voice input, and OpenRouter-backed LLM routing.
 
 ## Features
 
-- **Application Launcher**: Open your favorite tools quickly (e.g., `open chrome`, `open vscode`).
-- **Workspaces**: Launch an entire environment containing multiple apps and web pages at once with a single command (e.g., `open dsa workspace`).
-- **File Finder**: Search your files across the system rapidly (e.g., `find resume`).
-- **File Creation**: Quickly scaffold empty files (e.g., `create notes.txt`).
-- **AI Integration (Optional)**: Automatically write drafts and content using a local LLM through Ollama (e.g., `write a python script for sorting`).
+- Transparent pet widget with no control-panel background.
+- Double-click voice commands with smooth non-blocking animation.
+- Event-based pet reactions for hover, listening, thinking, success, and errors.
+- Application launcher, e.g. `open chrome`, `open vscode`.
+- Workspace launcher from `config/workspaces.json`, e.g. `open dsa workspace`.
+- File finder, e.g. `find resume`.
+- File creation, e.g. `create notes.txt`.
+- AI writing and document Q&A through OpenRouter, not Ollama.
 
-## Project Structure
+## Setup
 
-```text
-assistant/
-├── main.py                     # Entry point for the application
-├── requirements.txt            # Python dependencies
-├── ui/
-│   └── widget.py               # The floating CustomTkinter UI
-├── commands/                   # Command logic and handlers
-│   ├── parser.py               # Routes commands to correct modules
-│   ├── launcher.py             # Opens desktop applications
-│   ├── workspace.py            # Opens predefined workspaces
-│   ├── search.py               # Searches for files on disk
-│   └── ai_writer.py            # Interfaces with local Ollama models
-└── config/
-    └── workspaces.json         # Workspace configurations (JSON)
+```powershell
+cd assistant
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-## Prerequisites
+Set your OpenRouter key before starting the app:
 
-- Windows 11 (or 10)
-- Python 3.11+
-- [Ollama](https://ollama.com/) (Optional, for local AI writing features)
+```powershell
+$env:OPENROUTER_API_KEY="your_key_here"
+```
 
-## Installation
+Optional model override:
 
-1. Navigate to the project directory:
-   ```bash
-   cd assistant
-   ```
+```powershell
+$env:OPENROUTER_MODEL="openai/gpt-4o-mini"
+```
 
-2. Create a virtual environment and activate it:
-   ```powershell
-   python -m venv venv
-   .\venv\Scripts\activate
-   ```
+## Run
 
-3. Install the dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```powershell
+python main.py
+```
 
-## Usage
+The pet appears near the bottom-right of the screen. Drag it to move it, or double-click the pet to speak.
 
-1. Start the application by running:
-   ```bash
-   python main.py
-   ```
+## Packaged EXE
 
-2. The AI assistant widget will appear in the bottom right corner of your screen. You can drag it by clicking and holding the UI.
+Build the Windows executable:
 
-3. Type your commands in the text box and hit **Enter**.
+```powershell
+.\build_exe.bat
+```
 
-### Example Commands
+Run the packaged app with one terminal command:
 
-- **Open applications**:
-  - `open chrome`
-  - `open vscode and chrome`
-- **Open a workspace** (as defined in `config/workspaces.json`):
-  - `open dsa workspace`
-  - `open development workspace`
-- **Search for files**:
-  - `find my_project_report`
-- **Create a text file**:
-  - `create scratchpad.md`
-- **Generate text with AI**:
-  - `write a README template`
+```powershell
+.\run_pet.bat
+```
 
-## Configuring Workspaces
+The executable lives at:
 
-You can customize your environments by editing `config/workspaces.json`. 
+```text
+dist\DesktopPetAssistant\DesktopPetAssistant.exe
+```
+
+## Example Commands
+
+- `open chrome`
+- `open vscode and chrome`
+- `open dsa workspace`
+- `find project report`
+- `create scratchpad.md`
+- `write a README for my movie recommendation project to README.md`
+- `summarize report.pdf`
+- `analyze data.csv`
+
+## Workspaces
+
+Edit `config/workspaces.json`:
 
 ```json
 {
@@ -90,10 +85,5 @@ You can customize your environments by editing `config/workspaces.json`.
   }
 }
 ```
-In this example, typing `open dsa workspace` will launch VS Code, Chrome, and open LeetCode in your default browser.
 
-## Customization and Expansion
-
-The assistant uses a flexible **plugin system**. If you want to add new functionality (like controlling music or sending emails), simply:
-1. Create a new handler in the `commands/` folder.
-2. Hook it up in `commands/parser.py`.
+`open dsa workspace` launches the configured apps and URLs.
